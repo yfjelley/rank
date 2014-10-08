@@ -5,11 +5,13 @@ import urllib,urllib2,threading,re
 import BeautifulSoup
 
 class threadScrapy(threading.Thread):
-    def __init__(self,url,num):
+    def __init__(self,kw,num):
         threading.Thread.__init__(self)
-        self.url = url
+        self.keyWord = kw
+        self.url = "http://www.baidu.com/s?wd=%s"%self.keyWord
         self.thread_num = num
         self.thread_stop = False
+        self.alex = {}
 
     def run(self):
         print self.url
@@ -19,12 +21,13 @@ class threadScrapy(threading.Thread):
         l = soup.html.body.find('div' ,id='content_left').findAll('span',{'class':re.compile('^\w{5,7}$')})
         print len(l)
         print l
-        #l=filter(lambda x : '-' not in str(x),l)
-        parten = re.compile(r'\<span\s{1}class\=\"\w{3,6}"\>(.+*)\<\/span\>')
+        l=filter(lambda x : '-' not in str(x),l)
+        parten = re.compile(r'\<span\s{1}class\=\"\w{3,6}"\>(.+?)\<\/span\>')
         for i in l:
             match=parten.match(str(i))
             if match :
-                print match.group(1)
+                self.alex.setdefault(self.keyWord,[]).append(match.group(1))
+        print self.alex
         #l = soup.findAll(attrs={"class":'VJDfES'})
         with open('html.txt','w') as f:
             f.write(str(l).strip().strip("@"))
@@ -33,18 +36,7 @@ class threadScrapy(threading.Thread):
         self.thread_stop = True
 
 if __name__ == "__main__" :
-    url = "http://www.baidu.com/s?wd=不孕不育"
-    x=threadScrapy(url,1)
+    keyWord = "不孕不育"
+    x=threadScrapy(keyWord,1)
     x.start()
-
-
-    '''
-    for i in range(3000):
-        url = "http://www.baidu.com/s?wd=%d"%i
-        x="t"+bytes(i)
-        x=threadScrapy(url,i)
-        x.start()
-    '''
-
-
 

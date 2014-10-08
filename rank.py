@@ -3,6 +3,20 @@ import sys
 reload(sys).setdefaultencoding("utf8")
 import urllib,urllib2,threading,re
 import BeautifulSoup
+import MySQLdb
+
+try:
+    conn = MySQLdb.connect(host='localhost',user='root',passwd='123')
+    cursor = conn.cursor()
+    sql= '''create database if not exists `baidu` default character set utf8 collate utf8_general_ci;'''
+    cursor.execute(sql)
+    conn.select_db('baidu')
+    print "xxx"
+    sql='''create table if not exists alex(`keyword` varchar(100),`addres` varchar(100),`rank` int(3))ENGINE=InnoDB DEFAULT CHARSET=utf8;'''
+    cursor.execute(sql)
+    cursor.execute('''truncate table alex ''')
+except Exception,e:
+    print e
 
 class threadScrapy(threading.Thread):
     def __init__(self,kw,num):

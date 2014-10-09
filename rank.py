@@ -24,9 +24,10 @@ def writeData(sql):
     insert data into table
     '''
     try:
-        conn = MySQLdb.connect(host='localhost',user='root',passwd='123',db='baidu')
+        conn = MySQLdb.connect(host='localhost',user='root',passwd='123',db='baidu',charset='utf8')
         cursor = conn.cursor()
         cursor.execute(sql)
+        conn.commit()
         print sql
         cursor.close()
     except Exception,e:

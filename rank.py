@@ -36,11 +36,11 @@ def writeData(sql):
         pass
 
 class threadScrapy(threading.Thread):
-    def __init__(self,kw,num):
+    def __init__(self,kw,num,add):
         threading.Thread.__init__(self)
         self.keyWord = kw
-        self.addres = '上海'
-        self.url = "http://www.baidu.com/s?wd=%s%s%s"%(self.keyWord,urllib.quote('+'),'上海')
+        self.addres = add
+        self.url = "http://www.baidu.com/s?wd=%s%s%s"%(self.keyWord,urllib.quote('+'),self.addres)
         self.thread_num = num
         self.thread_stop = False
 
@@ -63,6 +63,7 @@ class threadScrapy(threading.Thread):
 
 if __name__ == "__main__" :
     keyWord = "不孕不育"
-    x=threadScrapy(keyWord,1)
+    addres = "上海"
+    x=threadScrapy(keyWord,1,addres)
     x.start()
 

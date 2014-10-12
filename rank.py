@@ -21,46 +21,54 @@ class MainWindow(QtGui.QMainWindow,Ui_MainWindow):
         super(MainWindow,self).__init__(parent)
         self.setupUi(self)
         self.webView=QWebView()
-        
-        self.so()
-    def readRank(self):
+        self.model = QStandardItemModel(10, 3, self.tableView)
+        self.model.setHorizontalHeaderLabels([u'关键字', u'地区', u'医院'])
+
+    def _readRank(self):
     	with open('rank.txt') as f:
     	    for line in f.readlines():
-    	    	p = line.split('\s')
-                self.so(p)
+    	    	yield line
 
-    def so(self,p):
-        if len(p) == 4:
-            keyWord,addres,hospital,rank = map(lambda x:unicode(x),p)
-        else:
-            return
-        url="http://www.baidu.com/s?wd=%s+%s"%(keyWord,addres)
-        self.webView.load(QUrl(url))
-        #self.webView.show()
-        time.sleep(2)
-        html = self.webView.page().mainFrame().toHtml()
-        d = pq(str(html))
-        x = d('.pagelist-name').text().strip()
-        x = x.encode('utf-8')
-        reg = re.compile(r'【.*?】',re.X)
-        parten = reg.split(x)#【不孕不育】
-        model = QStandardItemModel(10, 3, self.tableView)
-        model.setHorizontalHeaderLabels([u'关键字', u'地区', u'医院'])
+    def _loadUrl(self):
+        self.url="http://www.baidu.com/s?wd=%s+%s"%(self.keyWord,self.addres)
+        print self.url
+        self.webView.load(QUrl(self.url))
+        self.webView.show()
+        time.sleep(1)
+        self.html = self.webView.page().mainFrame().toHtml()
+        d = pq(str(self.html))
+        x = d('.pagelist-name').text().strip().encode('utf-8')
+        print x
+        #reg = re.compile(r'【.*?】',re.X)
+        self.parten = re.split(r'【.*?】',x)#【不孕不育】
+        print self.parten
+    def _showTable(self,parten):
         for i in parten:
             if len(i)>3:
-               print parten.index(i)
-               print i.decode("utf8")
-               model.setData(model.index(parten.index(i)-1, 0, QModelIndex()), QVariant(u'%s'%addres))
-               model.setData(model.index(parten.index(i)-1, 1, QModelIndex()), QVariant(u'%s'%keyWord))
-               model.setData(model.index(parten.index(i)-1, 2, QModelIndex()), QVariant(i.decode('utf-8')))
-        self.tableView.setModel(model)
+               print i               
+               self.model.setData(self.model.index(parten.index(i)-1, 0, QModelIndex()), QVariant(u'%s'%self.addres))
+               self.model.setData(self.model.index(parten.index(i)-1, 1, QModelIndex()), QVariant(u'%s'%self.keyWord))
+               self.model.setData(self.model.index(parten.index(i)-1, 2, QModelIndex()), QVariant(i.decode('utf-8')))
+        self.tableView.setModel(self.model)
         self.tableView.horizontalHeader().setStretchLastSection(True)
         self.tableView.setWindowTitle('Grid + Combo Testing')
         self.tableView.show()
-          
+    def main(self):
+    	r = self._readRank()
+    	for line in r:
+    	    p = line.split()
+            if len(p) == 4:
+               self.keyWord,self.addres,self.hospital,self.rank = map(lambda x:unicode(x),p)
+               self._loadUrl()
+               self._showTable(self.parten)
+               time.sleep(2)
+        else:
+            return 
+                  
 if __name__ == '__main__':
     Program = QtGui.QApplication(sys.argv)
     Window=MainWindow()
     Window.show()
     Program.exec_()
+    
 

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'rank.ui'
 #
-# Created: Sun Oct 12 09:11:57 2014
+# Created: Sun Oct 12 10:52:05 2014
 #      by: PyQt4 UI code generator 4.11.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -26,7 +26,7 @@ except AttributeError:
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName(_fromUtf8("MainWindow"))
-        MainWindow.resize(500, 470)
+        MainWindow.resize(500, 492)
         self.centralwidget = QtGui.QWidget(MainWindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.label = QtGui.QLabel(self.centralwidget)
@@ -55,12 +55,12 @@ class Ui_MainWindow(object):
         self.label_5 = QtGui.QLabel(self.centralwidget)
         self.label_5.setGeometry(QtCore.QRect(210, 40, 31, 31))
         self.label_5.setObjectName(_fromUtf8("label_5"))
-        self.pushButton = QtGui.QPushButton(self.centralwidget)
-        self.pushButton.setGeometry(QtCore.QRect(390, 40, 75, 23))
-        self.pushButton.setObjectName(_fromUtf8("pushButton"))
         self.tableView = QtGui.QTableView(self.centralwidget)
-        self.tableView.setGeometry(QtCore.QRect(30, 80, 431, 351))
+        self.tableView.setGeometry(QtCore.QRect(30, 110, 431, 341))
         self.tableView.setObjectName(_fromUtf8("tableView"))
+        self.label_6 = QtGui.QLabel(self.centralwidget)
+        self.label_6.setGeometry(QtCore.QRect(30, 70, 81, 31))
+        self.label_6.setObjectName(_fromUtf8("label_6"))
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtGui.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 500, 19))
@@ -78,5 +78,5 @@ class Ui_MainWindow(object):
         self.label_2.setText(_translate("MainWindow", "百度推广关键词排名", None))
         self.label_3.setText(_translate("MainWindow", "关键词：", None))
         self.label_5.setText(_translate("MainWindow", "地区：", None))
-        self.pushButton.setText(_translate("MainWindow", "搜索", None))
+        self.label_6.setText(_translate("MainWindow", "推广位排名：", None))
 

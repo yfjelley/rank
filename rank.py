@@ -50,6 +50,12 @@ class threadScrapy(threading.Thread):
         html = urllib.urlopen(self.url)
         soup = BeautifulSoup.BeautifulSoup(html)
         #l = soup.html.body.find('div',id='content_left').findAll('span',{'class':re.compile('^\w{5,7}$')})
+        #查询推广位关键词排名
+        l = soup.html.body.findAll('table')
+        #with open('html.txt','w') as f:
+        #    f.write(str(l))
+        #print l
+        #查询非推广位的关键词排名
         l = soup.html.body.find('div',id='content_left').findAll('span',{'class':'g'})
         parten = re.compile(r'\<span\s{1}class\=\"g"\>(.+?)\;(.+?)\<\/span\>')
         for i in l:

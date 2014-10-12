@@ -1,75 +1,63 @@
 # -*- coding:utf-8 -*-
+import sys ,urllib,time,re
+
+# Import Qt GUI component
+from PyQt4 import QtGui 
+from PyQt4 import QtCore
+from PyQt4.QtWebKit import *
+from PyQt4.Qt import *
+from pyquery import PyQuery as pq
+
+# Import GUI File
+from ui_rank import Ui_MainWindow
+
 import sys
-reload(sys).setdefaultencoding("utf8")
-import urllib,urllib2,threading,re
-import BeautifulSoup
-import MySQLdb
-
-try:
-    '''
-    create database 
-    '''
-    conn = MySQLdb.connect(host='localhost',user='root',passwd='123')
-    cursor = conn.cursor()
-    sql= '''create database if not exists `baidu` default character set utf8 collate utf8_general_ci;'''
-    cursor.execute(sql)
-    conn.select_db('baidu')
-    cursor.execute('''drop table if exists alex;''')
-    sql='''create table if not exists alex(`keyword` varchar(100),`addres` varchar(100),`site` varchar(100),`rank` int(3))ENGINE=InnoDB DEFAULT CHARSET=utf8;'''
-    cursor.execute(sql)
-except Exception,e:
-    print e
-def writeData(sql):
-    '''
-    insert data into table
-    '''
-    try:
-        conn = MySQLdb.connect(host='localhost',user='root',passwd='123',db='baidu',charset='utf8')
-        cursor = conn.cursor()
-        cursor.execute(sql)
-        conn.commit()
-        print sql
-        cursor.close()
-    except Exception,e:
-        print e
-        print sql
-        pass
-
-class threadScrapy(threading.Thread):
-    def __init__(self,kw,num,add):
-        threading.Thread.__init__(self)
-        self.keyWord = kw
-        self.addres = add
-        self.url = "http://www.baidu.com/s?wd=%s%s%s"%(self.keyWord,urllib.quote('+'),self.addres)
-        self.thread_num = num
-        self.thread_stop = False
+reload(sys)
+sys.setdefaultencoding("utf-8")
 
 
-    def run(self):
-        print self.url,self.thread_num
-        html = urllib.urlopen(self.url)
-        soup = BeautifulSoup.BeautifulSoup(html)
-        #l = soup.html.body.find('div',id='content_left').findAll('span',{'class':re.compile('^\w{5,7}$')})
-        #查询推广位关键词排名
-        l = soup.html.body.findAll('table')
-        #with open('html.txt','w') as f:
-        #    f.write(str(l))
-        #print l
-        #查询非推广位的关键词排名
-        l = soup.html.body.find('div',id='content_left').findAll('span',{'class':'g'})
-        parten = re.compile(r'\<span\s{1}class\=\"g"\>(.+?)\;(.+?)\<\/span\>')
-        for i in l:
-            match=parten.match(str(i))
-            if match :
-                writeData('''insert into alex values('%s','%s','%s',%d);'''%(self.keyWord,self.addres,match.group(1),l.index(i)))
-        #l = soup.findAll(attrs={"class":'VJDfES'})
+# Make main window class
+class MainWindow(QtGui.QMainWindow,Ui_MainWindow):
+    def __init__(self, parent=None):
+        super(MainWindow,self).__init__(parent)
+        self.setupUi(self)
+        self.webView=QWebView()
 
-    def stop(self):
-        self.thread_stop = True
+        self.connect(self.pushButton, QtCore.SIGNAL('clicked()'),self.so)
 
-if __name__ == "__main__" :
-    keyWord = "不孕不育"
-    addres = "上海"
-    x=threadScrapy(keyWord,1,addres)
-    x.start()
+    def so(self):
+       if self.lineEdit.text() and self.lineEdit.text():
+          print u"%s"%self.lineEdit.text(),u"%s"%self.lineEdit.text()
+          addres= u"%s"%self.lineEdit_2.text()
+          keyWord = u"%s"%self.lineEdit.text()
+          url="http://www.baidu.com/s?wd=%s+%s"%(keyWord,addres)
+          #self.webView.load(QUrl(url))
+          self.webView.load(QUrl(url))
+          #self.webView.show()
+          time.sleep(2)
+          html = self.webView.page().mainFrame().toHtml()
+          d = pq(str(html))
+          x = d('.pagelist-name').text().strip()
+          x = x.encode('utf-8')
+          reg = re.compile(r'【.*?】',re.X)
+          parten = reg.split(x)#【不孕不育】
+          model = QStandardItemModel(10, 3, self.tableView)
+          model.setHorizontalHeaderLabels([u'关键字', u'地区', u'医院'])
+          for i in parten:
+              if len(i)>3:
+                 print parten.index(i)
+                 print i.decode("utf8")
+                 model.setData(model.index(parten.index(i)-1, 0, QModelIndex()), QVariant(u'%s'%self.lineEdit.text()))
+                 model.setData(model.index(parten.index(i)-1, 1, QModelIndex()), QVariant(u'%s'%self.lineEdit_2.text()))
+                 model.setData(model.index(parten.index(i)-1, 2, QModelIndex()), QVariant(i.decode('utf-8')))
+          self.tableView.setModel(model)
+          self.tableView.horizontalHeader().setStretchLastSection(True)
+          self.tableView.setWindowTitle('Grid + Combo Testing')
+          self.tableView.show()
+          
+if __name__ == '__main__':
+    Program = QtGui.QApplication(sys.argv)
+    Window=MainWindow()
+    Window.show()
+    Program.exec_()
 

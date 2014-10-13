@@ -42,12 +42,12 @@ class MainWindow(QtGui.QMainWindow,Ui_MainWindow):
         #reg = re.compile(r'【.*?】',re.X)
         self.parten = re.split(r'【.*?】',x)#【不孕不育】
         print self.parten
-    def _showTable(self,parten):
+    def _showTable(self,parten):    	
         for i in parten:
             if len(i)>3:
                print i               
-               self.model.setData(self.model.index(parten.index(i)-1, 0, QModelIndex()), QVariant(u'%s'%self.addres))
-               self.model.setData(self.model.index(parten.index(i)-1, 1, QModelIndex()), QVariant(u'%s'%self.keyWord))
+               self.model.setData(self.model.index(parten.index(i)-1, 0, QModelIndex()), QVariant(unicode(self.addres)))
+               self.model.setData(self.model.index(parten.index(i)-1, 1, QModelIndex()), QVariant(unicode(self.keyWord)))
                self.model.setData(self.model.index(parten.index(i)-1, 2, QModelIndex()), QVariant(i.decode('utf-8')))
         self.tableView.setModel(self.model)
         self.tableView.horizontalHeader().setStretchLastSection(True)
@@ -64,11 +64,18 @@ class MainWindow(QtGui.QMainWindow,Ui_MainWindow):
                time.sleep(2)
         else:
             return 
+    def show(self):
+        self._showTable(self.parten)
+        super(MainWindow,self).show()
+
                   
 if __name__ == '__main__':
     Program = QtGui.QApplication(sys.argv)
     Window=MainWindow()
+    Window.main()
     Window.show()
+  
+
     Program.exec_()
     
 

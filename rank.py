@@ -1,81 +1,60 @@
-# -*- coding:utf-8 -*-
-import sys ,urllib,time,re
-
-# Import Qt GUI component
-from PyQt4 import QtGui 
-from PyQt4 import QtCore
+#-*- coding:utf-8 -*-
+import sys,time,re
+reload(sys).setdefaultencoding("utf8")
+from PyQt4 import QtGui,QtCore,QtSql,QtXml
 from PyQt4.QtWebKit import *
 from PyQt4.Qt import *
 from pyquery import PyQuery as pq
-
-# Import GUI File
-from ui_rank import Ui_MainWindow
-
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
-
-# Make main window class
-class MainWindow(QtGui.QMainWindow,Ui_MainWindow):
-    def __init__(self, parent=None):
-        super(MainWindow,self).__init__(parent)
-        self.setupUi(self)
+class Test(QtGui.QWidget):
+	#sin = pyqtSignal()
+    def __init__(self,parent=None):
+        self.app=QtGui.QApplication([])
+        super(Test,self).__init__(parent)
         self.webView=QWebView()
-        self.model = QStandardItemModel(10, 3, self.tableView)
-        self.model.setHorizontalHeaderLabels([u'关键字', u'地区', u'医院'])
-
-    def _readRank(self):
-    	with open('rank.txt') as f:
-    	    for line in f.readlines():
-    	    	yield line
-
-    def _loadUrl(self):
-        self.url="http://www.baidu.com/s?wd=%s+%s"%(self.keyWord,self.addres)
-        print self.url
-        self.webView.load(QUrl(self.url))
-        self.webView.show()
-        time.sleep(1)
-        self.html = self.webView.page().mainFrame().toHtml()
-        d = pq(str(self.html))
-        x = d('.pagelist-name').text().strip().encode('utf-8')
-        print x
-        #reg = re.compile(r'【.*?】',re.X)
-        self.parten = re.split(r'【.*?】',x)#【不孕不育】
-        print self.parten
-    def _showTable(self,parten):    	
-        for i in parten:
-            if len(i)>3:
-               print i               
-               self.model.setData(self.model.index(parten.index(i)-1, 0, QModelIndex()), QVariant(unicode(self.addres)))
-               self.model.setData(self.model.index(parten.index(i)-1, 1, QModelIndex()), QVariant(unicode(self.keyWord)))
-               self.model.setData(self.model.index(parten.index(i)-1, 2, QModelIndex()), QVariant(i.decode('utf-8')))
-        self.tableView.setModel(self.model)
-        self.tableView.horizontalHeader().setStretchLastSection(True)
-        self.tableView.setWindowTitle('Grid + Combo Testing')
-        self.tableView.show()
-    def main(self):
-    	r = self._readRank()
-    	for line in r:
-    	    p = line.split()
-            if len(p) == 4:
-               self.keyWord,self.addres,self.hospital,self.rank = map(lambda x:unicode(x),p)
-               self._loadUrl()
-               self._showTable(self.parten)
-               time.sleep(2)
-        else:
-            return 
+        
+        self.setGeometry(342,231,454,388)
+        self.layvTop=QtGui.QVBoxLayout()
+        self.setLayout(self.layvTop)
+            
+        self.txt=QtGui.QTextEdit()
+        self.layvTop.addWidget(self.txt)
+        self.timer=QtCore.QTimer()
+        QtCore.QObject.connect(self.timer,QtCore.SIGNAL("timeout()"), self.OnTimer)
+        self.timer.start( 1000 )
+    def write(self,txt):
+        self.txt.textCursor().insertText(txt)
     def show(self):
-        self._showTable(self.parten)
-        super(MainWindow,self).show()
+        super(Test,self).show()
+        self.app.exec_()
 
-                  
-if __name__ == '__main__':
-    Program = QtGui.QApplication(sys.argv)
-    Window=MainWindow()
-    Window.main()
-    Window.show()
-  
-
-    Program.exec_()
-    
-
+    def OnTimer(self,event=False):
+        with open('rank.txt') as f:
+           for line in f.readlines():
+              p = line.split()
+              if len(p) == 4:
+                  keyWord,addres,hospital,rank = map(lambda x:unicode(x),p)
+                  self.url="http://www.baidu.com/s?wd=%s+%s"%(keyWord,addres)
+                  print self.url
+                  #self.webView.load(QUrl(url))
+                  self.webView.load(QUrl(self.url))
+                  #self.webView.show()   
+                  time.sleep(0.4)     
+                  html = self.webView.page().mainFrame().toHtml()
+                  d = pq(str(html))
+                  x = d('.pagelist-name').text().strip()
+                  reg = re.compile(u'【.*?】',re.X)
+                  parten = reg.split(x)
+                  print parten
+                  #if len(parten) >1:
+                  for i in parten:
+                  	  print i
+                  	  print "888"
+                      #print keyWord,addres,i,parten.index(i)
+              else:
+              	  return
+              time.sleep(3)
+        
+if __name__=='__main__':
+    t=Test()
+    sys.stdout=t
+    t.show()
